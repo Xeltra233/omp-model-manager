@@ -87,6 +87,18 @@ function buildModelsConfigModelEntry(
 	if (model.baseUrl) entry.baseUrl = model.baseUrl;
 	else delete entry.baseUrl;
 	entry.reasoning = model.reasoning;
+	if (model.reasoning) {
+		const effectiveApi = model.api || provider.api;
+		const mode = effectiveApi === "google-generative-ai" ? "google-level"
+			: effectiveApi === "anthropic-messages" ? "anthropic-adaptive"
+			: "effort";
+		entry.thinking = {
+			mode,
+			efforts: ["minimal", "low", "medium", "high", "xhigh", "max"],
+		};
+	} else {
+		delete entry.thinking;
+	}
 	if (model.thinkingLevelMap && Object.keys(model.thinkingLevelMap).length > 0) {
 		const map: Record<string, string | null> = {};
 		for (const [level, mapped] of Object.entries(model.thinkingLevelMap)) {
