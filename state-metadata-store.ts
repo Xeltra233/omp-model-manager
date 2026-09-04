@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { cloneJson, isObjectRecord, stringifyJson, stripJsonNoise } from "./common.ts";
 import { readStableTextFileSnapshot, type FileSignature } from "./file-snapshot.ts";
 import { t } from "./i18n.ts";
+import { ALL_THINKING_LEVELS } from "./types.ts";
 import type {
 	ApiKind,
 	BuiltInClientHeaderProfileId,
@@ -34,7 +35,7 @@ const CLIENT_HEADER_PROFILE_IDS = new Set<ClientHeaderProfileId>(["recommended",
 const BUILT_IN_CLIENT_HEADER_PROFILE_IDS = new Set<BuiltInClientHeaderProfileId>(["claude-code", "codex-cli"]);
 const RESERVED_REQUEST_HEADER_PROFILE_IDS = new Set(["claude-code", "codex-cli", "claude-code-live", "codex-cli-live"]);
 const INPUT_KINDS = new Set<ModelInputKind>(["text", "image"]);
-const THINKING_LEVELS = new Set(Object.freeze(["off", "minimal", "low", "medium", "high", "xhigh", "max"]));
+const THINKING_LEVELS = new Set<string>(ALL_THINKING_LEVELS);
 const OPENAI_SERVICE_TIERS = new Set<OpenAIServiceTier>(["priority"]);
 
 interface ProviderMetadata {
@@ -448,7 +449,7 @@ function parseMetadataState(parsed: Record<string, unknown>): ParsedMetadataStat
 	};
 }
 
-function parseStateFile(source: string): ParsedMetadataStateFile {
+export function parseStateFile(source: string): ParsedMetadataStateFile {
 	const parsed = JSON.parse(stripJsonNoise(source));
 	if (!isObjectRecord(parsed)) fail("", t("根节点必须是对象"));
 	if (parsed.version === 4 || parsed.version === 3 || parsed.version === 2) return parseMetadataState(parsed);

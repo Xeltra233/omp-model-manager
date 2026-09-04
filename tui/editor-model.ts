@@ -230,6 +230,8 @@ async function editField(
 		return;
 	}
 	if (fieldId === "anthropicThinkingProtocol") {
+	}
+	if (fieldId === "anthropicThinkingProtocol") {
 		const choice = await showOptionPicker(
 			ctx,
 			"Adaptive",

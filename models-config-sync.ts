@@ -28,6 +28,7 @@ import {
 	type ModelsConfigProviderEntry,
 } from "./models-config-manager.ts";
 import { buildModelRequestHeaders } from "./provider-registrar.ts";
+import { ALL_THINKING_LEVELS } from "./types.ts";
 import type {
 	BuiltInClientHeaderProfileId,
 	StateDocument,
@@ -37,7 +38,7 @@ import type {
 	StoredRequestHeaderProfile,
 } from "./types.ts";
 
-const THINKING_LEVELS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+const THINKING_LEVELS = new Set<string>(ALL_THINKING_LEVELS);
 
 export interface NativeModelVerification {
 	ok: boolean;

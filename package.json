@@ -42,6 +42,7 @@
     "file-snapshot.ts",
     "sensitive-redaction.ts",
     "compat-settings.ts",
+    "thinking-payload-adapter.ts",
     "runtime-base-url.ts",
     "types.ts",
     "tui/",

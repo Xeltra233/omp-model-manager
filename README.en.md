@@ -95,11 +95,25 @@ In OMP interactive mode, use any of the following slash commands:
 - Probe & Pick: Test connection and retrieve remote model IDs directly from the form.
 - Fine-grained controls: Multimodal capabilities (vision), reasoning/thinking modes, context window sizes, token limits.
 
-### 3. Request Header Profiles
+### 3. Comprehensive Thinking Levels & Protocol Adaptation
+- **Full 8-Level Ladder**: Supports `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, and `ultra`. All levels are unlocked by default and never silently pruned by built-in model regexes or protocol presets.
+- **Protocol Mapping & Safe Fallback**:
+  - **OpenAI Protocols** (`openai-responses` / `openai-completions`): Exposes all levels by default. When targeting official OpenAI endpoints (`api.openai.com`), non-native parameters automatically fallback safely (`minimal -> low`, `xhigh/max/ultra -> high`) to avoid HTTP 400 errors; third-party and custom gateway endpoints pass through verbatim.
+  - **Google Protocol** (`google-generative-ai`): All levels available; automatically fixes upstream missing parameters for Gemini 3 / 2.5 thinking configs.
+  - **Anthropic Protocol** (`anthropic-messages`): Adaptive effort mapped cleanly across the full ladder with safe official API fallbacks.
+- **Custom Mapping via `thinkingLevelMap`**: You can map any local level to arbitrary upstream parameter values:
+  ```yaml
+  thinkingLevelMap:
+    max: "ultra"
+    ultra: "ultra"
+  ```
+- **Seamless Migration**: Stored configurations containing legacy null limits (e.g. historical `minimal: null` or `xhigh/max: null`) are smoothly upgraded upon loading.
+
+### 4. Request Header Profiles
 - Pre-configured headers for tools like Codex CLI and Claude Code.
 - Create, manage, and assign reusable custom header profiles across multiple providers.
 
-### 4. Per-Provider Proxy Routing
+### 5. Per-Provider Proxy Routing
 - Configure dedicated HTTP/HTTPS proxy URLs (e.g. `http://127.0.0.1:7890`) per provider.
 - Lightweight local proxy daemon with on-demand routing.
 

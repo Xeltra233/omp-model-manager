@@ -2,29 +2,39 @@
 
 import type { ApiKind, ThinkingLevelMap } from "../types.ts";
 
-const EXTENDED_THINKING_LEVEL_MAP: ThinkingLevelMap = {
-	xhigh: "xhigh",
-	max: "max",
-};
-
-const OPENAI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
-	minimal: null,
+export const DEFAULT_EXTENDED_THINKING_LEVEL_MAP: ThinkingLevelMap = {
+	minimal: "low",
 	low: "low",
 	medium: "medium",
 	high: "high",
 	xhigh: "xhigh",
 	max: "max",
+	ultra: "ultra",
 };
 
-// [喵喵喵]: Gemini 原生 ThinkingLevel 只有 MINIMAL/LOW/MEDIUM/HIGH；pi 的 xhigh/max 必须显式禁用。(2026-07-10)
-const GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
+export const DEFAULT_OPENAI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
+	minimal: "low",
+	low: "low",
+	medium: "medium",
+	high: "high",
+	xhigh: "xhigh",
+	max: "max",
+	ultra: "ultra",
+};
+
+export const DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
 	minimal: "minimal",
 	low: "low",
 	medium: "medium",
 	high: "high",
-	xhigh: null,
-	max: null,
+	xhigh: "high",
+	max: "high",
+	ultra: "ultra",
 };
+
+export const EXTENDED_THINKING_LEVEL_MAP = DEFAULT_EXTENDED_THINKING_LEVEL_MAP;
+export const OPENAI_THINKING_LEVEL_MAP = DEFAULT_OPENAI_THINKING_LEVEL_MAP;
+export const GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP = DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP;
 
 function isLegacyShiftedMaxLadder(map: ThinkingLevelMap): boolean {
 	return map.minimal === "low"
@@ -35,22 +45,29 @@ function isLegacyShiftedMaxLadder(map: ThinkingLevelMap): boolean {
 		&& map.max === undefined;
 }
 
-function buildThinkingLevelMap(api: ApiKind, reasoning: boolean): ThinkingLevelMap | undefined {
-	if (!reasoning) return undefined;
-	if (api === "google-generative-ai") return { ...GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP };
-	if (api === "openai-completions" || api === "openai-responses") return { ...OPENAI_THINKING_LEVEL_MAP };
-	return { ...EXTENDED_THINKING_LEVEL_MAP };
+function isLegacyGoogleLockedMap(map: ThinkingLevelMap): boolean {
+	return map.minimal === "minimal"
+		&& map.low === "low"
+		&& map.medium === "medium"
+		&& map.high === "high"
+		&& map.xhigh === null
+		&& map.max === null;
 }
 
-function applyProtocolThinkingLevelLimits(
-	api: ApiKind,
-	thinkingLevelMap: ThinkingLevelMap | undefined,
-): ThinkingLevelMap | undefined {
-	if (api === "google-generative-ai") {
-		return { ...(thinkingLevelMap ?? {}), ...GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP };
-	}
-	if (!thinkingLevelMap) return undefined;
-	return { ...EXTENDED_THINKING_LEVEL_MAP, ...thinkingLevelMap };
+function isLegacyOpenAILockedMap(map: ThinkingLevelMap): boolean {
+	return map.minimal === null
+		&& map.low === "low"
+		&& map.medium === "medium"
+		&& map.high === "high"
+		&& (map.xhigh === "xhigh" || map.xhigh === "high" || map.xhigh === undefined)
+		&& (map.max === "max" || map.max === "high" || map.max === undefined);
+}
+
+export function buildThinkingLevelMap(api: ApiKind, reasoning: boolean): ThinkingLevelMap | undefined {
+	if (!reasoning) return undefined;
+	if (api === "google-generative-ai") return { ...DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP };
+	if (api === "openai-completions" || api === "openai-responses") return { ...DEFAULT_OPENAI_THINKING_LEVEL_MAP };
+	return { ...DEFAULT_EXTENDED_THINKING_LEVEL_MAP };
 }
 
 function mergeThinkingLevelMap(
@@ -68,6 +85,10 @@ export function normalizeThinkingLevelMap(
 ): ThinkingLevelMap | undefined {
 	if (!reasoning) return undefined;
 	const defaultMap = buildThinkingLevelMap(api, true);
-	if (storedMap && isLegacyShiftedMaxLadder(storedMap)) return defaultMap;
-	return applyProtocolThinkingLevelLimits(api, mergeThinkingLevelMap(defaultMap, storedMap));
+	if (storedMap) {
+		if (isLegacyShiftedMaxLadder(storedMap) || isLegacyGoogleLockedMap(storedMap) || isLegacyOpenAILockedMap(storedMap)) {
+			return defaultMap;
+		}
+	}
+	return mergeThinkingLevelMap(defaultMap, storedMap);
 }

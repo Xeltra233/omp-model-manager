@@ -332,6 +332,7 @@ const ENGLISH_MESSAGES = {
 	"ClaudeCode metadata 注入失败，本次请求仅使用请求头": "ClaudeCode metadata injection failed; this request will use headers only",
 	"OpenAI Responses instructions 标准化失败，本次请求使用原始 payload": "OpenAI Responses instruction normalization failed; this request will use the original payload",
 	"Fast mode 状态读取失败，本次请求未注入 service_tier": "Failed to read Fast mode state; service_tier was not injected for this request",
+	"思考深度 payload 适配失败，本次请求使用原始 payload": "Thinking payload adaptation failed; using raw payload for this request",
 	"{reason}，已切换到 {fullId}": "{reason}; switched to {fullId}",
 	"{reason}，已自动切换到 {fullId}": "{reason}; automatically switched to {fullId}",
 	"{reason}，但当前没有其它可用模型。请使用 /omp-model-manager 添加模型或配置认证。": "{reason}, but no other model is currently available. Use /omp-model-manager to add a model or configure authentication.",

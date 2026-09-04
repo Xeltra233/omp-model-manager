@@ -8,7 +8,8 @@
 
 export type ApiKind = "openai-completions" | "openai-responses" | "anthropic-messages" | "google-generative-ai";
 export type ModelInputKind = "text" | "image";
-type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
+export const ALL_THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"] as const;
+export type ThinkingLevel = (typeof ALL_THINKING_LEVELS)[number];
 export type ThinkingLevelMap = Partial<Record<ThinkingLevel, string | null>>;
 export type ReasoningMode = "enabled" | "disabled";
 export type AnthropicThinkingProtocol = "adaptive" | "legacy";

@@ -9,6 +9,7 @@ import { formatUnknownError } from "./common.ts";
 import { t, type MessageKey } from "./i18n.ts";
 import { normalizeManagedOpenAIResponsesPayload } from "./openai-responses-payload.ts";
 import { injectOpenAIServiceTier } from "./openai-service-tier.ts";
+import { adaptThinkingPayload } from "./thinking-payload-adapter.ts";
 import { readCachedState } from "./state-cache.ts";
 import type { StateDocument } from "./types.ts";
 
@@ -51,6 +52,14 @@ const REQUEST_TRANSFORMS: RequestTransform[] = [
 		async run(payload, ctx, loadState) {
 			if (!ctx.model || ctx.model.api !== "openai-responses") return undefined;
 			return injectOpenAIServiceTier(payload, ctx.model, await loadState());
+		},
+	},
+	{
+		id: "thinking-payload-adapter",
+		warning: "思考深度 payload 适配失败，本次请求使用原始 payload",
+		async run(payload, ctx, loadState) {
+			if (!ctx.model) return undefined;
+			return adaptThinkingPayload(payload, ctx.model, await loadState());
 		},
 	},
 ];

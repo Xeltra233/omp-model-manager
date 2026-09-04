@@ -97,11 +97,25 @@ git clone https://github.com/Xeltra233/omp-model-manager.git ~/.omp/agent/extens
 - 自动探测：连接测试上游 API 并拉取全部可用模型 ID，无需手工核对。
 - 细粒度参数：独立调整输入多模态支持（文本/视觉）、Reasoning/Thinking 协议开关、上下文窗口大小、最大 token 数。
 
-### 3. 请求头 Profile 与客户端身份模拟
+### 3. 完整思考深度与协议自适应（Thinking Levels）
+- **完整 8 档深度支持**：支持 `off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max`、`ultra` 完整等级梯队，默认全部开放可用，不再因模型名模式或内置规则在界面中隐式裁剪。
+- **协议映射与安全 Fallback**：
+  - **OpenAI 协议**（`openai-responses` / `openai-completions`）：默认提供全量等级；当请求发送至 OpenAI 官方端点（`api.openai.com`）时，对非原生参数进行安全兼容（`minimal -> low`，`xhigh/max/ultra -> high`），防止官方 API 报 400；针对第三方/代理端点原样直通。
+  - **Google 协议**（`google-generative-ai`）：默认开放所有档位，解决 upstream 扩展等级参数缺失问题，自动保障 Gemini 3 / Gemini 2.5 具备有效的思考级别或 token 预算。
+  - **Anthropic 协议**（`anthropic-messages`）：Adaptive 思考模式支持完整阶梯；向官方端点发送时自动回退未原生兼容的扩展档位。
+- **自定义映射（`thinkingLevelMap`）**：支持在模型中自定义特定等级发给上游的真实参数字符串，例如：
+  ```yaml
+  thinkingLevelMap:
+    max: "ultra"
+    ultra: "ultra"
+  ```
+- **平滑兼容升级**：自动迁移旧版本自动生成的限制性配置（如历史遗留的 `minimal: null` 或 `xhigh/max: null`），无缝升级为全部开放。
+
+### 4. 请求头 Profile 与客户端身份模拟
 - 内置针对中转或特定网关所需的客户端请求头模板（如 Codex CLI、Claude Code 等）。
 - 支持用户自定义持久化请求头 Profile，并在接入点间灵活复用。
 
-### 4. 接入点本地代理转发
+### 5. 接入点本地代理转发
 - 支持为特定接入点单独配置 HTTP/HTTPS 代理（如 `http://127.0.0.1:7890`）。
 - 插件仅在本地动态建立轻量级代理路由，对非代理接入点零性能损耗。
 
