@@ -25,6 +25,8 @@
     "builtin-model-catalog.ts",
     "models-config-manager.ts",
     "models-config-sync.ts",
+    "models-json-manager.ts",
+    "models-json-sync.ts",
     "yaml-utils.ts",
     "provider-registrar.ts",
     "local-proxy-service.ts",

@@ -56,9 +56,13 @@ OpenAI (openai)
 
 ### Installation
 
-#### Option 1: Via OMP Package Manager
+#### Option 1: One-Line Command Install (Recommended)
 ```bash
 omp install github:Xeltra233/omp-model-manager
+```
+or using the plugin command:
+```bash
+omp plugin install github:Xeltra233/omp-model-manager
 ```
 
 #### Option 2: Clone to Local Extensions Directory

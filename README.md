@@ -56,14 +56,18 @@ OpenAI (openai)
 
 ### 安装方式
 
-#### 方式一：通过 OMP 安装
+#### 方式一：OMP 指令一键安装（推荐）
 
-在终端中执行：
+在终端中直接执行：
 ```bash
 omp install github:Xeltra233/omp-model-manager
 ```
+或使用 plugin 命令：
+```bash
+omp plugin install github:Xeltra233/omp-model-manager
+```
 
-或者克隆到本地后链接：
+#### 方式二：克隆到扩展目录本地加载
 ```bash
 git clone https://github.com/Xeltra233/omp-model-manager.git ~/.omp/agent/extensions/omp-model-manager
 ```
