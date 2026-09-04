@@ -99,7 +99,7 @@ async function selectUiLanguage(ctx: ExtensionCommandContext): Promise<void> {
 	const currentLanguage = getUiLanguage();
 	const choice = await showOptionPicker<{ id: UiLanguage; label: string }>(
 		ctx,
-		"语言 / Language",
+		t("语言"),
 		[
 			{ id: "zh-CN", label: "简体中文 / Simplified Chinese" },
 			{ id: "en", label: "English" },
@@ -414,7 +414,7 @@ export async function runDashboard(pi: ExtensionAPI, ctx: ExtensionCommandContex
 					{ key: "N", label: t("新建接入") },
 					{ key: "D", label: t("删除接入") },
 					{ key: "H", label: t("请求头管理") },
-					{ key: "L", label: "语言 / Language" },
+					{ key: "L", label: t("语言") },
 					{ key: "Esc", label: t("退出") },
 				],
 				emptyLabel: t("暂无自定义接入；按 n 新建"),

@@ -516,5 +516,25 @@ export async function verifyNativeModelAvailable(
 	if (ctx?.modelRegistry) {
 		warnings.push(...await verifyRegistryModel(t("当前会话 registry"), ctx.modelRegistry, providerId, modelId));
 	}
+	try {
+		const codingAgent = await import("@oh-my-pi/pi-coding-agent").catch(() => null);
+		const ModelRuntimeClass = (codingAgent as any)?.ModelRuntime;
+		const ModelRegistryClass = (codingAgent as any)?.ModelRegistry;
+		if (ModelRuntimeClass && ModelRegistryClass) {
+			const agentDir = getAgentDir();
+			const ymlSnapshot = await readStableTextFileSnapshot(join(agentDir, "models.yml"));
+			const modelsPath = ymlSnapshot.source !== undefined ? join(agentDir, "models.yml") : join(agentDir, "models.json");
+			const runtime = await ModelRuntimeClass.create({
+				authPath: join(agentDir, "auth.json"),
+				modelsPath,
+				allowModelNetwork: false,
+			});
+			const registry = new ModelRegistryClass(runtime);
+			const label = modelsPath.endsWith(".yml") ? t("原生 models.yml registry") : t("原生 models.json registry");
+			warnings.push(...await verifyRegistryModel(label, registry, providerId, modelId));
+		}
+	} catch (error) {
+		warnings.push(t("原生 models 校验失败：{error}", { error: formatUnknownError(error) }));
+	}
 	return { ok: warnings.length === 0, warnings };
 }

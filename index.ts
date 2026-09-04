@@ -113,27 +113,27 @@ export default async function modelManagerExtension(pi: ExtensionAPI): Promise<v
 		await closeLocalProxyServer();
 	});
 
-	// ---- 3. 命令注册：/omp-model-manager, /model-manager, /omm ----
+	// ---- 3. 命令注册：/model-manager (主命令), /omp-model-manager, /omm ----
 	const commandHandler = async (_args: string, ctx: any) => {
 		if (ctx.mode !== "tui") {
-			ctx.ui.notify(t("/omp-model-manager 需要 TUI 交互模式"), "error");
+			ctx.ui.notify(t("/model-manager 需要 TUI 交互模式"), "error");
 			return;
 		}
 		await runDashboard(pi, ctx);
 	};
 
-	pi.registerCommand("omp-model-manager", {
-		description: t("OMP 模型接入与请求配置 / OMP Model and provider settings"),
+	pi.registerCommand("model-manager", {
+		description: t("模型接入与请求配置"),
 		handler: commandHandler,
 	});
 
-	pi.registerCommand("model-manager", {
-		description: t("OMP 模型接入与请求配置 / OMP Model and provider settings"),
+	pi.registerCommand("omp-model-manager", {
+		description: t("模型接入与请求配置"),
 		handler: commandHandler,
 	});
 
 	pi.registerCommand("omm", {
-		description: t("OMP 模型接入与请求配置 (快捷别名)"),
+		description: t("模型接入与请求配置 (快捷别名)"),
 		handler: commandHandler,
 	});
 }

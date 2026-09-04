@@ -5,6 +5,7 @@ export type UiLanguage = (typeof SUPPORTED_UI_LANGUAGES)[number];
 export const DEFAULT_UI_LANGUAGE: UiLanguage = "zh-CN";
 
 const ENGLISH_MESSAGES = {
+	"语言": "Language",
 	"语言 / Language": "Language",
 	"简体中文": "Simplified Chinese",
 	"English": "English",
@@ -213,8 +214,14 @@ const ENGLISH_MESSAGES = {
 	"新建请求头": "New header profile",
 	"没有可删除的请求头。": "There are no header profiles to delete.",
 
-	"OMP 模型接入与请求配置 / OMP Model and provider settings": "OMP Model and provider settings / OMP 模型接入与请求配置",
-	"模型接入与请求配置 / Model and provider settings": "OMP Model and provider settings / OMP 模型接入与请求配置",
+	"模型接入与请求配置": "Model and provider settings",
+	"模型接入与请求配置 (快捷别名)": "Model and provider settings (shortcut)",
+	"OMP 模型接入与请求配置": "OMP Model and provider settings",
+	"OMP 模型接入与请求配置 / OMP Model and provider settings": "Model and provider settings",
+	"模型接入与请求配置 / Model and provider settings": "Model and provider settings",
+	"原生 models.yml registry": "Native models.yml registry",
+	"原生 models.json registry": "Native models.json registry",
+	"原生 models 校验失败：{error}": "Native models verification failed: {error}",
 	"/omp-model-manager 需要 TUI 交互模式": "/omp-model-manager requires interactive TUI mode",
 	"/model-manager 需要 TUI 交互模式": "/omp-model-manager requires interactive TUI mode",
 
