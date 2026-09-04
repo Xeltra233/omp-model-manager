@@ -3,7 +3,7 @@
 import type { ApiKind, ThinkingLevelMap } from "../types.ts";
 
 export const DEFAULT_EXTENDED_THINKING_LEVEL_MAP: ThinkingLevelMap = {
-	minimal: "low",
+	minimal: "minimal",
 	low: "low",
 	medium: "medium",
 	high: "high",
@@ -12,7 +12,7 @@ export const DEFAULT_EXTENDED_THINKING_LEVEL_MAP: ThinkingLevelMap = {
 };
 
 export const DEFAULT_OPENAI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
-	minimal: "low",
+	minimal: "minimal",
 	low: "low",
 	medium: "medium",
 	high: "high",

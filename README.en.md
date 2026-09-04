@@ -97,10 +97,7 @@ In OMP interactive mode, use any of the following slash commands:
 
 ### 3. Comprehensive Thinking Levels & Protocol Adaptation
 - **Full 7-Level Ladder**: Supports `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`. All levels are unlocked by default and never silently pruned by built-in model regexes or protocol presets.
-- **Protocol Mapping & Safe Fallback**:
-  - **OpenAI Protocols** (`openai-responses` / `openai-completions`): Exposes all levels by default. When targeting official OpenAI endpoints (`api.openai.com`), non-native parameters automatically fallback safely (`minimal -> low`, `xhigh/max -> high`) to avoid HTTP 400 errors; third-party and custom gateway endpoints pass through verbatim.
-  - **Google Protocol** (`google-generative-ai`): All levels available; automatically fixes upstream missing parameters for Gemini 3 / 2.5 thinking configs.
-  - **Anthropic Protocol** (`anthropic-messages`): Adaptive effort mapped cleanly across the full ladder with safe official API fallbacks.
+- **Protocol Mapping & Passthrough**: All reasoning levels (minimal, low, medium, high, xhigh, max) are passed verbatim to upstream models and endpoints without any artificial interception or downgrades.
 - **Custom Mapping via `thinkingLevelMap`**: You can map any local level to arbitrary upstream parameter values:
   ```yaml
   thinkingLevelMap:

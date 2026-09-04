@@ -54,72 +54,7 @@ export function adaptThinkingPayload(
 	const provider = state.providers[model.provider];
 	const baseUrl = provider?.baseUrl;
 
-	// 1. OpenAI Responses wire format
-	if (model.api === "openai-responses") {
-		if (!isObjectRecord(payload.reasoning)) return undefined;
-		const effort = payload.reasoning.effort;
-		if (typeof effort !== "string") return undefined;
-
-		if (isOfficialOpenAIEndpoint(baseUrl)) {
-			let fallbackEffort: string | undefined;
-			if (effort === "minimal") fallbackEffort = "low";
-			else if (effort === "xhigh" || effort === "max") fallbackEffort = "high";
-
-			if (fallbackEffort && fallbackEffort !== effort) {
-				return {
-					...payload,
-					reasoning: {
-						...payload.reasoning,
-						effort: fallbackEffort,
-					},
-				};
-			}
-		}
-		return undefined;
-	}
-
-	// 2. OpenAI Chat Completions wire format
-	if (model.api === "openai-completions") {
-		const effort = payload.reasoning_effort;
-		if (typeof effort !== "string") return undefined;
-
-		if (isOfficialOpenAIEndpoint(baseUrl)) {
-			let fallbackEffort: string | undefined;
-			if (effort === "minimal") fallbackEffort = "low";
-			else if (effort === "xhigh" || effort === "max") fallbackEffort = "high";
-
-			if (fallbackEffort && fallbackEffort !== effort) {
-				return {
-					...payload,
-					reasoning_effort: fallbackEffort,
-				};
-			}
-		}
-		return undefined;
-	}
-
-	// 3. Anthropic Messages wire format
-	if (model.api === "anthropic-messages") {
-		if (!isObjectRecord(payload.output_config)) return undefined;
-		const effort = payload.output_config.effort;
-		if (typeof effort !== "string") return undefined;
-
-		if (isOfficialAnthropicEndpoint(baseUrl)) {
-			let fallbackEffort: string | undefined;
-			if (effort === "minimal") fallbackEffort = "low";
-
-			if (fallbackEffort && fallbackEffort !== effort) {
-				return {
-					...payload,
-					output_config: {
-						...payload.output_config,
-						effort: fallbackEffort,
-					},
-				};
-			}
-		}
-		return undefined;
-	}
+	// OpenAI Responses / Completions / Anthropic: 不做任何官方端点拦截或降级 fallback，全量等级直接原样直通
 
 	// 4. Google Generative AI wire format
 	if (model.api === "google-generative-ai") {
