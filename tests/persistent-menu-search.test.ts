@@ -163,6 +163,42 @@ test("Tab 退出输入态但保留过滤，此时单字母恢复为快捷键", a
 	assert.deepEqual(await menu.outcome, { type: "shortcut", shortcut: "new" });
 });
 
+test("无匹配过滤下快捷键不使用过滤前光标删除条目", async () => {
+	const cursor = { index: 1 };
+	const menu = openMenu(
+		[{ id: "alpha", label: "Alpha" }, { id: "beta", label: "Beta" }],
+		cursor,
+		[{ input: "d", shortcut: "delete" }],
+	);
+	menu.component.handleInput("/");
+	menu.component.handleInput("不存在");
+	menu.component.handleInput(Key.escape);
+	const restoredRendered = menu.component.render(80).join("\n");
+	assert.match(restoredRendered, /Beta/, "Esc 清空过滤后应恢复可见 beta");
+	assert.equal(cursor.index, 1, "Esc 清空过滤后应恢复搜索前有效光标索引");
+
+	menu.component.handleInput("/");
+	menu.component.handleInput("不存在");
+	menu.component.handleInput(Key.tab);
+	menu.component.handleInput(Key.escape);
+	const tabRestoredRendered = menu.component.render(80).join("\n");
+	assert.match(tabRestoredRendered, /Beta/, "Tab 退出输入态后 Esc 清空过滤应恢复可见 beta");
+	assert.equal(cursor.index, 1, "Tab 退出输入态后 Esc 清空过滤应恢复搜索前有效光标索引");
+
+	menu.component.handleInput("/");
+	menu.component.handleInput("不存在");
+	menu.component.handleInput(Key.tab);
+	const rendered = menu.component.render(80).join("\n");
+	assert.match(rendered, /过滤：不存在/, "Tab 退出输入态后仍保留过滤词");
+	assert.match(rendered, /无匹配项：不存在/, "无匹配结果提示应保持显示");
+	assert.doesNotMatch(rendered, /Alpha/);
+	assert.doesNotMatch(rendered, /Beta/);
+	menu.component.handleInput("d");
+
+	assert.deepEqual(await menu.outcome, { type: "shortcut", shortcut: "delete" });
+	assert.equal(cursor.index, -1, "无匹配结果时不应把旧光标传给删除调用方");
+});
+
 test("底部提示在窄终端折行而不是被截断丢失", () => {
 	const menu = openMenu([{ id: "a", label: "A" }], { index: 0 }, [], {
 		hints: [

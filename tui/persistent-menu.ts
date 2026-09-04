@@ -180,6 +180,7 @@ function createPersistentMenu<TAction extends MenuAction | FormMenuAction | Shor
 	cursor.index = clampIndex(cursor.index, rows.length);
 	return ctx.ui.custom<TAction>((tui, theme, _keybindings, done) => {
 		let selectedIndex = clampIndex(cursor.index, rows.length);
+		let lastValidRowIndex = selectedIndex;
 		let searchActive = false;
 		let searchQuery = "";
 		let searchCursor = 0;
@@ -193,10 +194,26 @@ function createPersistentMenu<TAction extends MenuAction | FormMenuAction | Shor
 		// onAdjust 会整批替换行数据，因此不能直接闭包参数 rows。
 		let currentRows = rows;
 		const getActiveRows = (): MenuRow[] => searchable ? filterRows(currentRows, searchQuery) : currentRows;
+		const recordLastValidRowIndex = (activeRows: MenuRow[] = getActiveRows()): void => {
+			const row = activeRows[selectedIndex];
+			if (!row) return;
+			const rawIndex = currentRows.indexOf(row);
+			if (rawIndex >= 0) {
+				lastValidRowIndex = rawIndex;
+			}
+		};
 
 		const syncCursor = (activeRows: MenuRow[]): void => {
 			const row = activeRows[selectedIndex];
-			if (row) cursor.index = currentRows.indexOf(row);
+			if (row) {
+				const rawIndex = currentRows.indexOf(row);
+				if (rawIndex >= 0) {
+					lastValidRowIndex = rawIndex;
+				}
+				cursor.index = rawIndex;
+			} else {
+				cursor.index = -1;
+			}
 		};
 
 		const requestRender = (): void => {
@@ -208,16 +225,18 @@ function createPersistentMenu<TAction extends MenuAction | FormMenuAction | Shor
 
 		const clearSearch = (): boolean => {
 			if (!searchable || (!searchActive && !searchQuery)) return false;
+			selectedIndex = clampIndex(lastValidRowIndex, currentRows.length);
 			searchActive = false;
 			searchQuery = "";
 			searchCursor = 0;
-			selectedIndex = clampIndex(cursor.index, currentRows.length);
 			requestRender();
 			return true;
 		};
 
 		const replaceSearchQuery = (nextQuery: string, nextCursor: number): void => {
-			const selectedRow = getActiveRows()[selectedIndex];
+			const activeRowsBefore = getActiveRows();
+			const selectedRow = activeRowsBefore[selectedIndex];
+			recordLastValidRowIndex(activeRowsBefore);
 			searchQuery = nextQuery;
 			searchCursor = clampIndex(nextCursor, Array.from(searchQuery).length + 1);
 			const nextRows = getActiveRows();
@@ -367,12 +386,14 @@ function createPersistentMenu<TAction extends MenuAction | FormMenuAction | Shor
 					return;
 				}
 				if (searchable && searchQuery && matchesKey(data, Key.tab)) {
+					recordLastValidRowIndex();
 					searchActive = true;
 					searchCursor = Array.from(searchQuery).length;
 					requestRender();
 					return;
 				}
 				if (searchable && data === "/") {
+					recordLastValidRowIndex();
 					searchActive = true;
 					searchCursor = Array.from(searchQuery).length;
 					requestRender();
