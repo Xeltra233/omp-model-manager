@@ -4,7 +4,7 @@ import { buildModelFromDraft, createModelDraftFromStoredModel } from "../state-d
 import { buildStateDocumentFromModelsConfig } from "../state-store.ts";
 import { ALL_THINKING_LEVELS, type StoredModel, type StoredProvider, type ThinkingLevelMap } from "../types.ts";
 
-test("端到端回归：模型创建、重命名、持久化重载保留完整 8 档思维等级", async () => {
+test("端到端回归：模型创建、重命名、持久化重载保留完整 7 档思维等级", async () => {
 	const customMap: ThinkingLevelMap = {
 		minimal: "low",
 		low: "low",
@@ -12,7 +12,6 @@ test("端到端回归：模型创建、重命名、持久化重载保留完整 8
 		high: "high",
 		xhigh: "xhigh",
 		max: "max",
-		ultra: "ultra",
 	};
 
 	const modelsConfigDoc = {
@@ -55,9 +54,9 @@ test("端到端回归：模型创建、重命名、持久化重载保留完整 8
 	assert.equal(model.id, "deep-thinker-v1");
 	assert.equal(model.reasoning, true);
 
-	// 2. 验证 8 档所有等级均保持完整
+	// 2. 验证 7 档所有等级均保持完整
 	assert.deepEqual(model.thinkingLevelMap, customMap);
-	for (const level of ["minimal", "low", "medium", "high", "xhigh", "max", "ultra"] as const) {
+	for (const level of ["minimal", "low", "medium", "high", "xhigh", "max"] as const) {
 		assert.equal(model.thinkingLevelMap?.[level], level === "minimal" ? "low" : level);
 	}
 
@@ -104,7 +103,7 @@ test("未知 thinking level key 在 schema 校验层产生预期拒绝", async (
 });
 
 test("ALL_THINKING_LEVELS 常量数组包含完整的顺序集合", () => {
-	const expected = ["off", "minimal", "low", "medium", "high", "xhigh", "max", "ultra"];
-	assert.equal(ALL_THINKING_LEVELS.length, 8);
+	const expected = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
+	assert.equal(ALL_THINKING_LEVELS.length, 7);
 	assert.deepEqual([...ALL_THINKING_LEVELS], expected);
 });

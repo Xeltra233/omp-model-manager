@@ -9,7 +9,6 @@ export const DEFAULT_EXTENDED_THINKING_LEVEL_MAP: ThinkingLevelMap = {
 	high: "high",
 	xhigh: "xhigh",
 	max: "max",
-	ultra: "ultra",
 };
 
 export const DEFAULT_OPENAI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
@@ -19,7 +18,6 @@ export const DEFAULT_OPENAI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
 	high: "high",
 	xhigh: "xhigh",
 	max: "max",
-	ultra: "ultra",
 };
 
 export const DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP: ThinkingLevelMap = {
@@ -29,7 +27,6 @@ export const DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP: ThinkingLevelMap =
 	high: "high",
 	xhigh: "high",
 	max: "high",
-	ultra: "ultra",
 };
 
 export const EXTENDED_THINKING_LEVEL_MAP = DEFAULT_EXTENDED_THINKING_LEVEL_MAP;

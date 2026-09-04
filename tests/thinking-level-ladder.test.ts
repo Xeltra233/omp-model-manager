@@ -9,7 +9,7 @@ import {
 } from "../presets/thinking.ts";
 import { ALL_THINKING_LEVELS, type ThinkingLevelMap } from "../types.ts";
 
-test("思考深度包含完整 8 档等级", () => {
+test("思考深度包含完整 7 档等级", () => {
 	assert.deepEqual(ALL_THINKING_LEVELS, [
 		"off",
 		"minimal",
@@ -18,7 +18,6 @@ test("思考深度包含完整 8 档等级", () => {
 		"high",
 		"xhigh",
 		"max",
-		"ultra",
 	]);
 });
 
@@ -33,8 +32,8 @@ test("各协议默认 thinkingLevelMap 包含所有非 off 档位且无默认 nu
 		assert.ok(built, `${api} 默认 map 必须存在`);
 		assert.deepEqual(built, map);
 
-		// 所有非 off 档位（minimal, low, medium, high, xhigh, max, ultra）都必须存在且非 null
-		for (const level of ["minimal", "low", "medium", "high", "xhigh", "max", "ultra"] as const) {
+		// 所有非 off 档位（minimal, low, medium, high, xhigh, max）都必须存在且非 null
+		for (const level of ["minimal", "low", "medium", "high", "xhigh", "max"] as const) {
 			assert.notEqual(built[level], null, `${api} 的 ${level} 不能为 null`);
 			assert.notEqual(built[level], undefined, `${api} 的 ${level} 必须有默认映射`);
 		}
@@ -59,7 +58,6 @@ test("历史锁死配置（如 Google xhigh/max 为 null 或 OpenAI minimal 为 
 	assert.deepEqual(upgradedGoogle, DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP);
 	assert.notEqual(upgradedGoogle?.xhigh, null);
 	assert.notEqual(upgradedGoogle?.max, null);
-	assert.equal(upgradedGoogle?.ultra, "ultra");
 
 	const legacyOpenAIMap: ThinkingLevelMap = {
 		minimal: null,
@@ -72,7 +70,6 @@ test("历史锁死配置（如 Google xhigh/max 为 null 或 OpenAI minimal 为 
 	const upgradedOpenAI = normalizeThinkingLevelMap("openai-responses", true, legacyOpenAIMap);
 	assert.deepEqual(upgradedOpenAI, DEFAULT_OPENAI_THINKING_LEVEL_MAP);
 	assert.equal(upgradedOpenAI?.minimal, "low");
-	assert.equal(upgradedOpenAI?.ultra, "ultra");
 });
 
 test("用户显式自定义 thinkingLevelMap 得到保留并与默认补齐", () => {

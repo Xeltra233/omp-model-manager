@@ -63,7 +63,7 @@ export function adaptThinkingPayload(
 		if (isOfficialOpenAIEndpoint(baseUrl)) {
 			let fallbackEffort: string | undefined;
 			if (effort === "minimal") fallbackEffort = "low";
-			else if (effort === "xhigh" || effort === "max" || effort === "ultra") fallbackEffort = "high";
+			else if (effort === "xhigh" || effort === "max") fallbackEffort = "high";
 
 			if (fallbackEffort && fallbackEffort !== effort) {
 				return {
@@ -86,7 +86,7 @@ export function adaptThinkingPayload(
 		if (isOfficialOpenAIEndpoint(baseUrl)) {
 			let fallbackEffort: string | undefined;
 			if (effort === "minimal") fallbackEffort = "low";
-			else if (effort === "xhigh" || effort === "max" || effort === "ultra") fallbackEffort = "high";
+			else if (effort === "xhigh" || effort === "max") fallbackEffort = "high";
 
 			if (fallbackEffort && fallbackEffort !== effort) {
 				return {
@@ -106,8 +106,7 @@ export function adaptThinkingPayload(
 
 		if (isOfficialAnthropicEndpoint(baseUrl)) {
 			let fallbackEffort: string | undefined;
-			if (effort === "ultra") fallbackEffort = "max";
-			else if (effort === "minimal") fallbackEffort = "low";
+			if (effort === "minimal") fallbackEffort = "low";
 
 			if (fallbackEffort && fallbackEffort !== effort) {
 				return {
@@ -129,7 +128,7 @@ export function adaptThinkingPayload(
 		const thinkingConfig = payload.config.thinkingConfig;
 		if (thinkingConfig.includeThoughts !== true) return undefined;
 
-		// 检查 thinkingLevel 与 thinkingBudget 是否因扩展档位（xhigh/max/ultra）在 upstream 缺失设置
+		// 检查 thinkingLevel 与 thinkingBudget 是否因扩展档位（xhigh/max）在 upstream 缺失设置
 		if (thinkingConfig.thinkingLevel === undefined && thinkingConfig.thinkingBudget === undefined) {
 			const id = model.id.toLowerCase();
 			const isGemini3 = /gemini-3/.test(id) || /gemma-?4/.test(id) || id.includes("flash-latest");

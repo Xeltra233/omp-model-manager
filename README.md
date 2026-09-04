@@ -98,16 +98,15 @@ git clone https://github.com/Xeltra233/omp-model-manager.git ~/.omp/agent/extens
 - 细粒度参数：独立调整输入多模态支持（文本/视觉）、Reasoning/Thinking 协议开关、上下文窗口大小、最大 token 数。
 
 ### 3. 完整思考深度与协议自适应（Thinking Levels）
-- **完整 8 档深度支持**：支持 `off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max`、`ultra` 完整等级梯队，默认全部开放可用，不再因模型名模式或内置规则在界面中隐式裁剪。
+- **完整 7 档深度支持**：支持 `off`、`minimal`、`low`、`medium`、`high`、`xhigh`、`max` 完整等级梯队，默认全部开放可用，不再因模型名模式或内置规则在界面中隐式裁剪。
 - **协议映射与安全 Fallback**：
-  - **OpenAI 协议**（`openai-responses` / `openai-completions`）：默认提供全量等级；当请求发送至 OpenAI 官方端点（`api.openai.com`）时，对非原生参数进行安全兼容（`minimal -> low`，`xhigh/max/ultra -> high`），防止官方 API 报 400；针对第三方/代理端点原样直通。
+  - **OpenAI 协议**（`openai-responses` / `openai-completions`）：默认提供全量等级；当请求发送至 OpenAI 官方端点（`api.openai.com`）时，对非原生参数进行安全兼容（`minimal -> low`，`xhigh/max -> high`），防止官方 API 报 400；针对第三方/代理端点原样直通。
   - **Google 协议**（`google-generative-ai`）：默认开放所有档位，解决 upstream 扩展等级参数缺失问题，自动保障 Gemini 3 / Gemini 2.5 具备有效的思考级别或 token 预算。
   - **Anthropic 协议**（`anthropic-messages`）：Adaptive 思考模式支持完整阶梯；向官方端点发送时自动回退未原生兼容的扩展档位。
 - **自定义映射（`thinkingLevelMap`）**：支持在模型中自定义特定等级发给上游的真实参数字符串，例如：
   ```yaml
   thinkingLevelMap:
-    max: "ultra"
-    ultra: "ultra"
+    max: "high"
   ```
 - **平滑兼容升级**：自动迁移旧版本自动生成的限制性配置（如历史遗留的 `minimal: null` 或 `xhigh/max: null`），无缝升级为全部开放。
 

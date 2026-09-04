@@ -123,7 +123,6 @@ test("Model 重命名保留自定义 thinkingLevelMap", () => {
 		high: "custom-high",
 		xhigh: null,
 		max: "max",
-		ultra: "ultra",
 	});
 });
 
