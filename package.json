@@ -1,0 +1,109 @@
+{
+  "name": "omp-model-manager",
+  "version": "0.4.0",
+  "description": "An interactive TUI model and custom provider manager for OMP (Oh My Pi) with dual YAML/JSON models persistence, request-header profiles, proxy routing, and protocol compatibility.",
+  "type": "module",
+  "main": "./index.ts",
+  "scripts": {
+    "test": "node --experimental-strip-types --import ./tests/register-test-loader.mjs --test --test-reporter=spec tests/*.test.ts"
+  },
+  "files": [
+    "NOTICE",
+    "LICENSE",
+    "README.en.md",
+    "README.md",
+    "index.ts",
+    "i18n.ts",
+    "ui-language-settings.ts",
+    "state-store.ts",
+    "state-metadata-store.ts",
+    "state-cache.ts",
+    "state-document.ts",
+    "openai-responses-payload.ts",
+    "openai-service-tier.ts",
+    "claude-code-compat.ts",
+    "builtin-model-catalog.ts",
+    "models-config-manager.ts",
+    "models-config-sync.ts",
+    "yaml-utils.ts",
+    "provider-registrar.ts",
+    "local-proxy-service.ts",
+    "request-pipeline.ts",
+    "model-mutations.ts",
+    "header-profile-mutations.ts",
+    "rescue.ts",
+    "atomic-write.ts",
+    "common.ts",
+    "config-value-reference.ts",
+    "configuration-persistence.ts",
+    "configuration-lock.ts",
+    "file-snapshot.ts",
+    "sensitive-redaction.ts",
+    "compat-settings.ts",
+    "runtime-base-url.ts",
+    "types.ts",
+    "tui/",
+    "presets/"
+  ],
+  "keywords": [
+    "omp-package",
+    "omp-plugin",
+    "omp-extension",
+    "omp",
+    "oh-my-pi",
+    "pi-package",
+    "pi-extension",
+    "model-manager",
+    "provider-manager",
+    "models-yml",
+    "models-json",
+    "client-headers",
+    "openai",
+    "anthropic"
+  ],
+  "author": "Xeltra",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xeltra233/omp-model-manager.git"
+  },
+  "homepage": "https://github.com/Xeltra233/omp-model-manager#readme",
+  "bugs": {
+    "url": "https://github.com/Xeltra233/omp-model-manager/issues"
+  },
+  "omp": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@oh-my-pi/pi-coding-agent": ">=18.0.0",
+    "@oh-my-pi/pi-tui": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@oh-my-pi/pi-coding-agent": {
+      "optional": true
+    },
+    "@oh-my-pi/pi-tui": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "http-proxy-agent": "^9.1.0",
+    "https-proxy-agent": "^9.1.0",
+    "minimatch": "^10.2.6",
+    "proper-lockfile": "^4.1.2",
+    "yaml": "^2.7.0"
+  }
+}

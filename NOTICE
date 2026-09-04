@@ -1,0 +1,8 @@
+omp-model-manager
+Copyright (c) 2026 Xeltra
+
+Ported from pi-model-manager
+Original work Copyright (c) 2026 Qihuanxishini
+Licensed under the GNU Affero General Public License version 3 (AGPL-3.0-only).
+
+This is a ported and adapted version for OMP (Oh My Pi). It provides interactive TUI model and provider management for OMP, dual models.yml/models.json file-based persistence, request-header profiles, proxy routing, and protocol compatibility.
