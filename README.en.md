@@ -2,11 +2,11 @@
 
 English · [简体中文](./README.md)
 
-[![OMP](https://img.shields.io/badge/OMP-%3E%3D18.0.0-6f42c1)](https://github.com/oh-my-pi)
+[![OMP](https://img.shields.io/badge/OMP-%3E%3D18.0.0-6f42c1)](https://github.com/can1357/oh-my-pi)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-pi--model--manager-2f81f7.svg)](https://github.com/Qihuanxishini/pi-model-manager)
 
-An interactive TUI model and custom provider manager for [OMP (Oh My Pi)](https://github.com/oh-my-pi).
+An interactive TUI model and custom provider manager for [OMP (Oh My Pi)](https://github.com/can1357/oh-my-pi).
 
 > 📌 **Project Notice**: This project is a port and adaptation of [pi-model-manager](https://github.com/Qihuanxishini/pi-model-manager) (authored by [@Qihuanxishini](https://github.com/Qihuanxishini)) for the **OMP (Oh My Pi)** ecosystem. Huge thanks to the original author for the excellent design!
 

@@ -2,11 +2,11 @@
 
 [English](./README.en.md) · 简体中文
 
-[![OMP](https://img.shields.io/badge/OMP-%3E%3D18.0.0-6f42c1)](https://github.com/oh-my-pi)
+[![OMP](https://img.shields.io/badge/OMP-%3E%3D18.0.0-6f42c1)](https://github.com/can1357/oh-my-pi)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-pi--model--manager-2f81f7.svg)](https://github.com/Qihuanxishini/pi-model-manager)
 
-面向 [OMP (Oh My Pi)](https://github.com/oh-my-pi) 的终端 TUI 交互式模型与自定义接入点管理器。
+面向 [OMP (Oh My Pi)](https://github.com/can1357/oh-my-pi) 的终端 TUI 交互式模型与自定义接入点管理器。
 
 > 📌 **项目声明**：本项目是 [pi-model-manager](https://github.com/Qihuanxishini/pi-model-manager)（作者 [@Qihuanxishini](https://github.com/Qihuanxishini)）针对 **OMP (Oh My Pi)** 生态的**移植与适配版**。衷心感谢原作者为社区带来的优秀设计！
 
