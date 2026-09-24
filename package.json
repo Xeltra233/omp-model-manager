@@ -1,6 +1,6 @@
 {
   "name": "omp-model-manager",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "An interactive TUI model and custom provider manager for OMP (Oh My Pi) with dual YAML/JSON models persistence, request-header profiles, proxy routing, and protocol compatibility.",
   "type": "module",
   "main": "./index.ts",
