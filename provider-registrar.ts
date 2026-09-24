@@ -125,6 +125,7 @@ export function buildModelRequestHeaders(
 		customHeaders,
 		clientHeaderCaptures,
 		effectiveCompat,
+		model.contextWindow,
 	);
 	return mergeModelRequestHeaders(model.headers, profileHeaders);
 }

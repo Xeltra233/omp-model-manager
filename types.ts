@@ -140,6 +140,7 @@ export interface ModelDraft {
 	contextWindow: number;
 	maxTokens: number;
 	openAIServiceTier?: OpenAIServiceTier;
+	claudeCode1mContext?: boolean;
 	selectedIndex: number;
 }
 
