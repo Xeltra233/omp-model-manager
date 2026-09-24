@@ -69,7 +69,7 @@ test("历史锁死配置（如 Google xhigh/max 为 null 或 OpenAI minimal 为 
 	};
 	const upgradedOpenAI = normalizeThinkingLevelMap("openai-responses", true, legacyOpenAIMap);
 	assert.deepEqual(upgradedOpenAI, DEFAULT_OPENAI_THINKING_LEVEL_MAP);
-	assert.equal(upgradedOpenAI?.minimal, "low");
+	assert.equal(upgradedOpenAI?.minimal, "minimal");
 });
 
 test("用户显式自定义 thinkingLevelMap 得到保留并与默认补齐", () => {
@@ -80,7 +80,7 @@ test("用户显式自定义 thinkingLevelMap 得到保留并与默认补齐", ()
 	};
 	const normalized = normalizeThinkingLevelMap("openai-responses", true, custom);
 	assert.deepEqual(normalized, {
-		minimal: "low",
+		minimal: "minimal",
 		low: "low",
 		medium: "medium",
 		high: "my-custom-high",

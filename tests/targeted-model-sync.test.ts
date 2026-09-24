@@ -117,7 +117,7 @@ test("Model 重命名保留自定义 thinkingLevelMap", () => {
 
 	const renamed = buildModelFromDraft(existing, draft, provider.compat);
 	assert.deepEqual(renamed.thinkingLevelMap, {
-		minimal: "low",
+		minimal: "minimal",
 		low: "low",
 		medium: "medium",
 		high: "custom-high",

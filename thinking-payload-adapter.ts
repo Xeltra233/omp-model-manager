@@ -1,13 +1,11 @@
 // thinking-payload-adapter.ts
 //
-// 协议请求 payload 中 thinking/reasoning 参数的安全归一化与 fallback。
+// 协议请求 payload 中 thinking/reasoning 参数的安全归一化。
 //
 // 契约：
-// - 原生支持的参数原样发送，不影响正常请求；
-// - 当针对官方端点（api.openai.com, api.anthropic.com, generativelanguage.googleapis.com）时，
-//   若发现未原生支持的扩展等级（如 OpenAI 官方的 minimal/ultra/xhigh/max，Google 的缺失 thinkingLevel/thinkingBudget，Anthropic 的 ultra/minimal），
-//   自动 fallback 至官方支持的对应最高/最低档位，防止服务端报 400；
-// - 自定义上游或未匹配官方域名时，保留原始/自定义配置值，不擅自改写。
+// - OpenAI / Anthropic 等协议全量等级原样直通，不做任何拦截或降级 fallback；
+// - Google Generative AI：当 Gemini 模型缺失 thinkingLevel / thinkingBudget 参数时进行必要补全，避免上游报错；
+// - 自定义上游或未匹配规则时，保留原始配置值，不擅自改写。
 
 import { isObjectRecord } from "./common.ts";
 import type { StateDocument } from "./types.ts";
@@ -24,35 +22,12 @@ function isPayloadRecord(payload: unknown): payload is PayloadRecord {
 	return isObjectRecord(payload);
 }
 
-function isOfficialOpenAIEndpoint(baseUrl: string | undefined): boolean {
-	if (!baseUrl) return true;
-	try {
-		const host = new URL(baseUrl).hostname.toLowerCase();
-		return host === "api.openai.com";
-	} catch {
-		return false;
-	}
-}
-
-function isOfficialAnthropicEndpoint(baseUrl: string | undefined): boolean {
-	if (!baseUrl) return true;
-	try {
-		const host = new URL(baseUrl).hostname.toLowerCase();
-		return host === "api.anthropic.com";
-	} catch {
-		return false;
-	}
-}
-
 export function adaptThinkingPayload(
 	payload: unknown,
 	model: ActiveModelRef | undefined,
 	state: StateDocument,
 ): PayloadRecord | undefined {
 	if (!model || !isPayloadRecord(payload)) return undefined;
-
-	const provider = state.providers[model.provider];
-	const baseUrl = provider?.baseUrl;
 
 	// OpenAI Responses / Completions / Anthropic: 不做任何官方端点拦截或降级 fallback，全量等级直接原样直通
 
