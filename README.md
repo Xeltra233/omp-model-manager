@@ -145,3 +145,9 @@ bun test
 
 - 本项目基于 [pi-model-manager](https://github.com/Qihuanxishini/pi-model-manager) 进行深度移植与 OMP 适配，原作者为 [Qihuanxishini](https://github.com/Qihuanxishini)。
 - 本项目继承使用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 开源。详见 [LICENSE](./LICENSE) 与 [NOTICE](./NOTICE)。
+
+---
+
+## 友情链接 (Friendly Links)
+
+- [LINUX DO](https://linux.do) - 新的开源与技术交流社区（真诚、友善、团结、专业）

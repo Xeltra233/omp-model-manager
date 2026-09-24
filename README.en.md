@@ -144,3 +144,9 @@ bun test
 
 - Adapted and ported from [pi-model-manager](https://github.com/Qihuanxishini/pi-model-manager) by [Qihuanxishini](https://github.com/Qihuanxishini).
 - Licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for details.
+
+---
+
+## Friendly Links
+
+- [LINUX DO](https://linux.do) - A friendly, professional, and vibrant technical community
