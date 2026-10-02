@@ -89,3 +89,43 @@ test("用户显式自定义 thinkingLevelMap 得到保留并与默认补齐", ()
 		ultra: "custom-ultra",
 	});
 });
+
+test("三套协议默认 map 全部恒等直通：选什么档就发什么值，不做任何静默改写", () => {
+	const defaults = [
+		["openai-completions", DEFAULT_OPENAI_THINKING_LEVEL_MAP],
+		["openai-responses", DEFAULT_OPENAI_THINKING_LEVEL_MAP],
+		["google-generative-ai", DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP],
+		["anthropic-messages", DEFAULT_EXTENDED_THINKING_LEVEL_MAP],
+	] as const;
+	for (const [api, map] of defaults) {
+		for (const level of ["minimal", "low", "medium", "high", "xhigh", "max"] as const) {
+			assert.equal(map[level], level, `${api} 默认 map 的 ${level} 必须恒等于自身`);
+		}
+		const built = buildThinkingLevelMap(api, true);
+		assert.ok(built);
+		for (const level of ["minimal", "low", "medium", "high", "xhigh", "max"] as const) {
+			assert.equal(built[level], level, `${api} buildThinkingLevelMap 的 ${level} 必须恒等于自身`);
+		}
+	}
+});
+
+test("旧版 Google 钳制默认（xhigh/max 被写成 high）载入时升级为恒等直通", () => {
+	const legacyClamped: ThinkingLevelMap = {
+		minimal: "minimal",
+		low: "low",
+		medium: "medium",
+		high: "high",
+		xhigh: "high",
+		max: "high",
+	};
+	const upgraded = normalizeThinkingLevelMap("google-generative-ai", true, legacyClamped);
+	assert.deepEqual(upgraded, DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP);
+	assert.equal(upgraded?.xhigh, "xhigh");
+	assert.equal(upgraded?.max, "max");
+
+	// 用户真正自定义过的值不受影响
+	const custom: ThinkingLevelMap = { ...legacyClamped, max: "my-max" };
+	const kept = normalizeThinkingLevelMap("google-generative-ai", true, custom);
+	assert.equal(kept?.max, "my-max");
+	assert.equal(kept?.xhigh, "high");
+});

@@ -25,8 +25,8 @@ export const DEFAULT_GOOGLE_GENERATIVE_AI_THINKING_LEVEL_MAP: ThinkingLevelMap =
 	low: "low",
 	medium: "medium",
 	high: "high",
-	xhigh: "high",
-	max: "high",
+	xhigh: "xhigh",
+	max: "max",
 };
 
 export const EXTENDED_THINKING_LEVEL_MAP = DEFAULT_EXTENDED_THINKING_LEVEL_MAP;
@@ -49,6 +49,17 @@ function isLegacyGoogleLockedMap(map: ThinkingLevelMap): boolean {
 		&& map.high === "high"
 		&& map.xhigh === null
 		&& map.max === null;
+}
+
+// 旧版本默认把 Google 的 xhigh/max 钳制到 "high"；该形状并非用户手工意图，
+// 载入时升级到恒等直通默认。用户真正自定义过的值（与该精确形状不同）不会被改写。
+function isLegacyGoogleClampedDefaultMap(map: ThinkingLevelMap): boolean {
+	return map.minimal === "minimal"
+		&& map.low === "low"
+		&& map.medium === "medium"
+		&& map.high === "high"
+		&& map.xhigh === "high"
+		&& map.max === "high";
 }
 
 function isLegacyOpenAILockedMap(map: ThinkingLevelMap): boolean {
@@ -83,7 +94,7 @@ export function normalizeThinkingLevelMap(
 	if (!reasoning) return undefined;
 	const defaultMap = buildThinkingLevelMap(api, true);
 	if (storedMap) {
-		if (isLegacyShiftedMaxLadder(storedMap) || isLegacyGoogleLockedMap(storedMap) || isLegacyOpenAILockedMap(storedMap)) {
+		if (isLegacyShiftedMaxLadder(storedMap) || isLegacyGoogleLockedMap(storedMap) || isLegacyOpenAILockedMap(storedMap) || isLegacyGoogleClampedDefaultMap(storedMap)) {
 			return defaultMap;
 		}
 	}
