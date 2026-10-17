@@ -8,6 +8,7 @@
 //   - getClientHeadersForProfile 在这里调，把客户端请求头 profile 翻译成模型级 headers。
 
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
+import { buildModelThinkingConfig } from "./anthropic-thinking.ts";
 import { isBuiltinProviderId } from "./builtin-model-catalog.ts";
 import { mergeCompatSettings } from "./compat-settings.ts";
 import { formatUnknownError } from "./common.ts";
@@ -143,6 +144,14 @@ function buildModelConfig(
 		api: model.api as ProviderModelConfig["api"],
 		baseUrl: runtimeBaseUrl ?? resolveModelRuntimeBaseUrl(provider, model),
 		reasoning: model.reasoning,
+		// [喵喵喵]: OMP 按模型里的 thinking.mode 决定 anthropic 发 adaptive 还是 budget。
+		// 动态注册时丢掉它，Claude 4.7+ 会退回 legacy thinking 并 400。
+		thinking: buildModelThinkingConfig(
+			model.api || provider.api,
+			model.id,
+			model.reasoning,
+			model.thinking,
+		) as ProviderModelConfig["thinking"],
 		thinkingLevelMap: model.thinkingLevelMap,
 		input: model.input,
 		cost: model.cost,

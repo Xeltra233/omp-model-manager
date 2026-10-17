@@ -106,6 +106,7 @@ git clone https://github.com/Xeltra233/omp-model-manager.git ~/.omp/agent/extens
     max: "high"
   ```
 - **平滑兼容升级**：自动迁移旧版本自动生成的限制性配置（如历史遗留的 `minimal: null` 或 `xhigh/max: null`），无缝升级为全部开放。
+- **Anthropic 协议强制**：OMP 的 `thinking.mode`（`anthropic-adaptive` / `budget`）按官方 per-model 表自动对齐——Claude 4.7+、Fable/Mythos 5、Sonnet 5 系列只接受 adaptive，Claude 4.5 及更早只接受 extended；只接受单一协议的模型在编辑器里标注“模型强制”，启动时自动迁移旧配置。
 
 ### 4. 请求头 Profile 与客户端身份模拟
 - 内置针对中转或特定网关所需的客户端请求头模板（如 Codex CLI、Claude Code 等）。

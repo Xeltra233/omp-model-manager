@@ -147,6 +147,9 @@ function buildStoredModelFromModelsConfig(
 	const storedThinkingLevelMap = model.thinkingLevelMap ? cloneJson(model.thinkingLevelMap) as ThinkingLevelMap : undefined;
 	const thinkingLevelMap = normalizeThinkingLevelMap(effectiveApi, stored.reasoning, storedThinkingLevelMap);
 	if (thinkingLevelMap) stored.thinkingLevelMap = thinkingLevelMap;
+	// [喵喵喵]: OMP 靠 thinking.mode 决定发 adaptive 还是 budget；注册层必须原样带上，
+	// 否则 Anthropic 模型会退回 legacy thinking，Claude 4.7+ 直接 400。
+	if (isObjectRecord(model.thinking)) stored.thinking = cloneJson(model.thinking) as StoredModel["thinking"];
 	if (modelCompat) stored.compat = modelCompat;
 	const modelMetadata = metadata.models[getFullModelId(providerId, model.id)];
 	if (effectiveApi === "openai-responses" && modelMetadata?.openAIServiceTier) {

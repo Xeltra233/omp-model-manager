@@ -17,7 +17,13 @@ import { DEFAULT_UI_LANGUAGE, joinLocalizedList, setUiLanguage, t } from "./i18n
 import { readUiLanguage } from "./ui-language-settings.ts";
 import { persistManagedConfiguration, recoverPendingConfigurationTransaction } from "./configuration-persistence.ts";
 import { resetClaudeCodeMetadataSession } from "./claude-code-compat.ts";
-import { findProvidersNeedingBaseUrlNormalization, normalizeProviderBaseUrlsInDocument } from "./state-document.ts";
+import { readModelsConfigSnapshot } from "./models-config-manager.ts";
+import {
+	findAnthropicThinkingNormalizationTargets,
+	findProvidersNeedingBaseUrlNormalization,
+	normalizeAnthropicThinkingInDocument,
+	normalizeProviderBaseUrlsInDocument,
+} from "./state-document.ts";
 import { closeLocalProxyServer } from "./local-proxy-service.ts";
 import { registerAllFromState, registerCatalogFromState } from "./provider-registrar.ts";
 import { createRequestPipeline } from "./request-pipeline.ts";
@@ -65,6 +71,7 @@ export default async function modelManagerExtension(pi: ExtensionAPI): Promise<v
 		resetClaudeCodeMetadataSession();
 		const transportErrors: string[] = [];
 		let migratedBaseUrlProviderIds: string[] = [];
+		let alignedThinkingModelIds: string[] = [];
 		try {
 			if (configurationBlocked) {
 				await recoverPendingConfigurationTransaction();
@@ -83,6 +90,22 @@ export default async function modelManagerExtension(pi: ExtensionAPI): Promise<v
 				}));
 				migratedBaseUrlProviderIds = staleBaseUrlProviderIds;
 			}
+			// [喵喵喵]: Claude 4.7+ 只接受 adaptive thinking。旧配置的 Anthropic 模型没有
+			// thinking.mode（或留着无效的 forceAdaptiveThinking），按能力表补齐并写回 models.yml。
+			const thinkingTargets = findAnthropicThinkingNormalizationTargets(
+				currentState,
+				(await readModelsConfigSnapshot()).document,
+			);
+			if (thinkingTargets.length > 0) {
+				const providerIds = thinkingTargets.map((target) => target.providerId);
+				await persistManagedConfiguration(ctx, (latest) => ({
+					document: normalizeAnthropicThinkingInDocument(latest, providerIds),
+					changedProviderIds: providerIds,
+					removedProviderIds: [],
+				}));
+				alignedThinkingModelIds = thinkingTargets.flatMap((target) =>
+					target.modelIds.map((modelId) => `${target.providerId}/${modelId}`));
+			}
 		} catch (error) {
 			configurationBlocked = true;
 			transportErrors.push(t("恢复、读取或激活模型配置失败：{error}", { error: formatUnknownError(error) }));
@@ -96,6 +119,15 @@ export default async function modelManagerExtension(pi: ExtensionAPI): Promise<v
 		}
 		for (const error of transportErrors) {
 			ctx.ui.notify(`[omp-model-manager] ${error}`, "error");
+		}
+		if (alignedThinkingModelIds.length > 0) {
+			ctx.ui.notify(
+				t("[omp-model-manager] 已把 {count} 个模型的 thinking 协议对齐到上游要求（{modelIds}）", {
+					count: alignedThinkingModelIds.length,
+					modelIds: joinLocalizedList(alignedThinkingModelIds),
+				}),
+				"info",
+			);
 		}
 		if (migratedBaseUrlProviderIds.length > 0) {
 			ctx.ui.notify(

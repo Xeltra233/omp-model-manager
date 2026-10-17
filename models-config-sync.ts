@@ -12,6 +12,7 @@ import {
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { minimatch } from "minimatch";
+import { buildModelThinkingConfig } from "./anthropic-thinking.ts";
 import { atomicWriteText } from "./atomic-write.ts";
 import { cloneJson, formatUnknownError, isObjectRecord, stringifyJson, stripJsonNoise } from "./common.ts";
 import { withConfigurationLock } from "./configuration-lock.ts";
@@ -87,18 +88,9 @@ function buildModelsConfigModelEntry(
 	if (model.baseUrl) entry.baseUrl = model.baseUrl;
 	else delete entry.baseUrl;
 	entry.reasoning = model.reasoning;
-	if (model.reasoning) {
-		const effectiveApi = model.api || provider.api;
-		const mode = effectiveApi === "google-generative-ai" ? "google-level"
-			: effectiveApi === "anthropic-messages" ? "anthropic-adaptive"
-			: "effort";
-		entry.thinking = {
-			mode,
-			efforts: ["minimal", "low", "medium", "high", "xhigh", "max"],
-		};
-	} else {
-		delete entry.thinking;
-	}
+	const thinking = buildModelThinkingConfig(model.api || provider.api, model.id, model.reasoning, model.thinking);
+	if (thinking) entry.thinking = thinking;
+	else delete entry.thinking;
 	if (model.thinkingLevelMap && Object.keys(model.thinkingLevelMap).length > 0) {
 		const map: Record<string, string | null> = {};
 		for (const [level, mapped] of Object.entries(model.thinkingLevelMap)) {

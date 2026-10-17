@@ -3,10 +3,12 @@
 // 协议请求 payload 中 thinking/reasoning 参数的安全归一化。
 //
 // 契约：
-// - OpenAI / Anthropic 等协议全量等级原样直通，不做任何拦截或降级 fallback；
+// - OpenAI 协议全量等级原样直通，不做任何拦截或降级 fallback；
+// - Anthropic：只改上游明确拒绝的 thinking 形状（4.7+ 的 enabled、always-on 的 disabled）；
 // - Google Generative AI：当 Gemini 模型缺失 thinkingLevel / thinkingBudget 参数时进行必要补全，避免上游报错；
 // - 自定义上游或未匹配规则时，保留原始配置值，不擅自改写。
 
+import { normalizeAnthropicThinkingPayload } from "./anthropic-thinking.ts";
 import { isObjectRecord } from "./common.ts";
 import type { StateDocument } from "./types.ts";
 
@@ -29,7 +31,13 @@ export function adaptThinkingPayload(
 ): PayloadRecord | undefined {
 	if (!model || !isPayloadRecord(payload)) return undefined;
 
-	// OpenAI Responses / Completions / Anthropic: 不做任何官方端点拦截或降级 fallback，全量等级直接原样直通
+	// OpenAI Responses / Completions: 不做任何官方端点拦截或降级 fallback，全量等级直接原样直通
+
+	// Anthropic：只把上游明确禁止的形状（4.7+ 的 thinking.type=enabled、always-on 模型的
+	// disabled）改写成能力表允许的形式；双模与未知模型保持原样。
+	if (model.api === "anthropic-messages") {
+		return normalizeAnthropicThinkingPayload(payload, model.id);
+	}
 
 	// 4. Google Generative AI wire format
 	if (model.api === "google-generative-ai") {

@@ -7,6 +7,7 @@
 //   - 视觉支持用开关式 select，保存时仍映射为 text / text,image
 
 import { BorderedLoader, type ExtensionCommandContext } from "@oh-my-pi/pi-coding-agent";
+import { resolveAnthropicThinkingProtocol } from "../anthropic-thinking.ts";
 import { t } from "../i18n.ts";
 import { resolveClientHeaderProfile } from "../presets/client-headers.ts";
 import type { AnthropicThinkingProtocol, BuiltInClientHeaderProfileId, ModelDraft, ModelListFetchOutcome, ReasoningMode, StoredClientHeaderCapture, StoredRequestHeaderProfile } from "../types.ts";
@@ -47,8 +48,14 @@ function describeReasoningMode(mode: ReasoningMode): string {
 	return mode === "enabled" ? t("开启") : t("关闭");
 }
 
-function describeAnthropicThinkingProtocol(protocol: AnthropicThinkingProtocol): string {
-	return protocol === "adaptive" ? t("开启 · 新版协议") : t("关闭 · Legacy");
+// [喵喵喵]: 只接受一种协议的模型（Claude 4.7+/4.5、Fable/Mythos 5）直接标注“模型强制”，
+// 避免用户以为切换生效但上游回 400。
+function describeAnthropicThinkingProtocol(draft: ModelDraft): string {
+	const forced = resolveAnthropicThinkingProtocol(draft.modelId) !== undefined;
+	if (draft.anthropicThinkingProtocol === "adaptive") {
+		return forced ? t("开启 · 新版协议（模型强制）") : t("开启 · 新版协议");
+	}
+	return forced ? t("关闭 · Legacy（模型强制）") : t("关闭 · Legacy");
 }
 
 function describeOpenAIServiceTier(draft: ModelDraft): string {
@@ -77,6 +84,11 @@ function applyHorizontalToggle(draft: ModelDraft, fieldId: string): boolean {
 		return true;
 	}
 	if (fieldId === "anthropicThinkingProtocol") {
+		const required = resolveAnthropicThinkingProtocol(draft.modelId);
+		if (required) {
+			draft.anthropicThinkingProtocol = required;
+			return true;
+		}
 		draft.anthropicThinkingProtocol = draft.anthropicThinkingProtocol === "adaptive" ? "legacy" : "adaptive";
 		return true;
 	}
@@ -103,8 +115,8 @@ function buildRows(draft: ModelDraft): FieldRow[] {
 		rows.push({
 			id: "anthropicThinkingProtocol",
 			label: "Adaptive",
-			value: describeAnthropicThinkingProtocol(draft.anthropicThinkingProtocol!),
-			adjustable: true,
+			value: describeAnthropicThinkingProtocol(draft),
+			adjustable: resolveAnthropicThinkingProtocol(draft.modelId) === undefined,
 		});
 	}
 	if (shouldShowOpenAIServiceTier(draft)) {
@@ -259,6 +271,14 @@ async function editField(
 		return;
 	}
 	if (fieldId === "anthropicThinkingProtocol") {
+		const required = resolveAnthropicThinkingProtocol(draft.modelId);
+		if (required) {
+			draft.anthropicThinkingProtocol = required;
+			ctx.ui.notify(t(required === "adaptive"
+				? "该模型只接受新版协议（thinking.type=adaptive），无法切换到 Legacy"
+				: "该模型只接受旧版协议（thinking.type=enabled），无法切换到 Adaptive"), "info");
+			return;
+		}
 		const choice = await showOptionPicker(
 			ctx,
 			"Adaptive",

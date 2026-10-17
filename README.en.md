@@ -98,6 +98,7 @@ In OMP interactive mode, use any of the following slash commands:
 ### 3. Comprehensive Thinking Levels & Protocol Adaptation
 - **Full 7-Level Ladder**: Supports `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`. All levels are unlocked by default and never silently pruned by built-in model regexes or protocol presets.
 - **Protocol Mapping & Passthrough**: All reasoning levels (minimal, low, medium, high, xhigh, max) are passed verbatim to upstream models and endpoints without any artificial interception or downgrades.
+- **Anthropic protocol pinning**: OMP's `thinking.mode` (`anthropic-adaptive` / `budget`) follows the official per-model table — Claude 4.7+, Fable/Mythos 5, and Sonnet 5 families accept only adaptive, while Claude 4.5 and earlier accept only extended. Models with a single supported protocol are marked as model-required in the editor, and stale configs are migrated at startup.
 - **Custom Mapping via `thinkingLevelMap`**: You can map any local level to arbitrary upstream parameter values:
   ```yaml
   thinkingLevelMap:

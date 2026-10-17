@@ -11,6 +11,11 @@
 
 import { cloneJson, cloneStringRecord, hasStringRecordEntries, trimOrFallback } from "./common.ts";
 import {
+	buildAnthropicThinkingConfig,
+	resolveAnthropicThinkingProtocol,
+	resolveThinkingProtocolFromMode,
+} from "./anthropic-thinking.ts";
+import {
 	getConfigValueEnvVarNames,
 	getSingleConfigValueEnvVarName,
 	isCommandConfigValue,
@@ -156,8 +161,13 @@ export function createModelDraftFromStoredModel(
 	const preset = findPresetForApi(effectiveApi);
 	const reasoning = model.reasoning ?? preset.defaultReasoning;
 	const modelAdaptiveOverride = model.compat?.forceAdaptiveThinking;
-	const usesAdaptiveThinking = modelAdaptiveOverride === true
-		|| (modelAdaptiveOverride === undefined && stored.compat?.forceAdaptiveThinking === true);
+	const storedThinkingProtocol = resolveThinkingProtocolFromMode(model.thinking?.mode)
+		?? (modelAdaptiveOverride === true
+			|| (modelAdaptiveOverride === undefined && stored.compat?.forceAdaptiveThinking === true)
+			? "adaptive"
+			: "legacy");
+	// 只接受一种协议的模型以能力表为准：旧配置没写 thinking.mode 时也必须展示真实生效的协议。
+	const thinkingProtocol = resolveAnthropicThinkingProtocol(model.id) ?? storedThinkingProtocol;
 	const model1mOverride = model.compat?.claudeCode1mContext;
 	const uses1mContext = model1mOverride === true
 		|| (model1mOverride === undefined && stored.compat?.claudeCode1mContext === true);
@@ -177,9 +187,7 @@ export function createModelDraftFromStoredModel(
 		modelName: model.name ?? "",
 		inputKinds: [...(model.input ?? preset.inputKinds)],
 		reasoningMode: reasoning ? "enabled" : "disabled",
-		anthropicThinkingProtocol: effectiveApi === "anthropic-messages"
-			? (usesAdaptiveThinking ? "adaptive" : "legacy")
-			: undefined,
+		anthropicThinkingProtocol: effectiveApi === "anthropic-messages" ? thinkingProtocol : undefined,
 		contextWindow: model.contextWindow ?? preset.contextWindow,
 		maxTokens: model.maxTokens ?? preset.maxTokens,
 		openAIServiceTier: effectiveApi === "openai-responses" ? model.openAIServiceTier : undefined,
@@ -411,17 +419,16 @@ export function buildModelFromDraft(
 		next.openAIServiceTier = "priority";
 	}
 
-	if (effectiveApi === "anthropic-messages" && draft.anthropicThinkingProtocol) {
-		const existingOverride = existing?.compat?.forceAdaptiveThinking;
-		const providerForcesAdaptiveThinking = providerCompat?.forceAdaptiveThinking === true;
-		if (draft.anthropicThinkingProtocol === "adaptive") {
-			if (existingOverride === true || !providerForcesAdaptiveThinking) compat.forceAdaptiveThinking = true;
-			else delete compat.forceAdaptiveThinking;
-		} else if (existingOverride === false || providerForcesAdaptiveThinking) {
-			compat.forceAdaptiveThinking = false;
-		} else {
-			delete compat.forceAdaptiveThinking;
-		}
+	if (effectiveApi === "anthropic-messages") {
+		// [喵喵喵]: OMP 只看 thinking.mode（以及 compat.disableAdaptiveThinking），不读
+		// forceAdaptiveThinking。这里写 mode 并清掉旧版本留下的死键，避免 models.yml 出现无效 compat。
+		next.thinking = buildAnthropicThinkingConfig(
+			existing?.thinking,
+			modelId,
+			resolveAnthropicThinkingProtocol(modelId) ?? draft.anthropicThinkingProtocol,
+		);
+		if (!reasoning) delete next.thinking;
+		delete compat.forceAdaptiveThinking;
 	}
 
 	if (effectiveApi === "anthropic-messages") {
@@ -541,6 +548,75 @@ export function normalizeProviderBaseUrlsInDocument(
 		const provider = next.providers[providerId];
 		if (!provider?.managed || !provider.baseUrl) continue;
 		provider.baseUrl = resolveRuntimeBaseUrl(provider.api, provider.baseUrl);
+	}
+	return next;
+}
+
+// [喵喵喵]: 旧配置的 Anthropic 模型没有 thinking.mode（或留着无效的 forceAdaptiveThinking），
+// OMP 只会发 legacy thinking，Claude 4.7+ 直接 400。state 视图已经归一化，所以迁移比对 models.yml 原始值。
+export interface AnthropicThinkingSourceEntry {
+	compat?: CompatSettings;
+	models?: ReadonlyArray<{ id?: string; thinking?: { mode?: string } }>;
+}
+
+export function findAnthropicThinkingNormalizationTargets(
+	document: StateDocument,
+	source: { providers?: Record<string, AnthropicThinkingSourceEntry | undefined> },
+): Array<{ providerId: string; modelIds: string[] }> {
+	const targets: Array<{ providerId: string; modelIds: string[] }> = [];
+	for (const [providerId, provider] of Object.entries(document.providers)) {
+		if (!provider.managed) continue;
+		const sourceProvider = source.providers?.[providerId];
+		if (!sourceProvider) continue;
+		const sourceModels = new Map(
+			(sourceProvider.models ?? [])
+				.filter((model): model is { id: string } => typeof model.id === "string")
+				.map((model) => [model.id, model]),
+		);
+		const modelIds = provider.models
+			.filter((model) => needsAnthropicThinkingNormalization(provider, model, sourceModels.get(model.id)))
+			.map((model) => model.id);
+		if (modelIds.length > 0) targets.push({ providerId, modelIds });
+	}
+	return targets;
+}
+
+function needsAnthropicThinkingNormalization(
+	provider: StoredProvider,
+	model: StoredModel,
+	sourceModel: { thinking?: { mode?: string }; compat?: CompatSettings } | undefined,
+): boolean {
+	if (!sourceModel) return false;
+	const api = isApiKind(model.api) ? model.api : provider.api;
+	if (api !== "anthropic-messages" || !model.reasoning) return false;
+	if (sourceModel.compat && "forceAdaptiveThinking" in sourceModel.compat) return true;
+	const required = resolveAnthropicThinkingProtocol(model.id);
+	if (!required) return false;
+	return resolveThinkingProtocolFromMode(sourceModel.thinking?.mode) !== required;
+}
+
+export function normalizeAnthropicThinkingInDocument(
+	document: StateDocument,
+	providerIds: readonly string[],
+): StateDocument {
+	const next: StateDocument = cloneJson(document);
+	for (const providerId of providerIds) {
+		const provider = next.providers[providerId];
+		if (!provider?.managed) continue;
+		for (const model of provider.models) {
+			const api = isApiKind(model.api) ? model.api : provider.api;
+			if (api !== "anthropic-messages" || !model.reasoning) continue;
+			model.thinking = buildAnthropicThinkingConfig(
+				model.thinking,
+				model.id,
+				resolveAnthropicThinkingProtocol(model.id),
+			);
+			if (model.compat && "forceAdaptiveThinking" in model.compat) {
+				const { forceAdaptiveThinking: _deadFlag, ...rest } = model.compat;
+				model.compat = rest;
+				if (Object.keys(rest).length === 0) delete model.compat;
+			}
+		}
 	}
 	return next;
 }

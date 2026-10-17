@@ -25,6 +25,7 @@ export interface ModelsConfigModelEntry {
 	api?: string;
 	baseUrl?: string;
 	reasoning?: boolean;
+	thinking?: { mode: string; efforts?: string[]; [key: string]: unknown };
 	thinkingLevelMap?: Record<string, string | null>;
 	input?: ("text" | "image")[];
 	contextWindow?: number;

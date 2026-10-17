@@ -13,6 +13,7 @@ export type ThinkingLevel = (typeof ALL_THINKING_LEVELS)[number];
 export type ThinkingLevelMap = Partial<Record<ThinkingLevel, string | null>>;
 export type ReasoningMode = "enabled" | "disabled";
 export type AnthropicThinkingProtocol = "adaptive" | "legacy";
+export type ThinkingControlMode = "effort" | "budget" | "google-level" | "anthropic-adaptive" | "anthropic-budget-effort";
 export type OpenAIChatCompatibilityMode = "standard" | "compatible";
 export type BuiltInClientHeaderProfileId = "claude-code" | "codex-cli";
 export type ClientHeaderProfileId = "recommended" | "disabled" | BuiltInClientHeaderProfileId | "custom";
@@ -49,6 +50,16 @@ export interface StoredClientHeaderCapture {
 	headers: Record<string, string>;
 }
 
+export interface ModelThinkingConfig {
+	mode: ThinkingControlMode;
+	efforts?: string[];
+	defaultLevel?: string;
+	effortMap?: Record<string, string>;
+	supportsDisplay?: boolean;
+	requiresEffort?: boolean;
+	[key: string]: unknown;
+}
+
 export interface StoredModel {
 	id: string;
 	/** 仅保存相对 provider 默认值的显式模型级覆盖。 */
@@ -58,6 +69,8 @@ export interface StoredModel {
 	headers?: Record<string, string>;
 	name?: string;
 	reasoning: boolean;
+	/** OMP 的 thinking 控制模式；mode 决定上游发 adaptive 还是 budget。 */
+	thinking?: ModelThinkingConfig;
 	thinkingLevelMap?: ThinkingLevelMap;
 	input: ModelInputKind[];
 	contextWindow: number;
